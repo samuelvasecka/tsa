@@ -6,6 +6,10 @@ Tento projekt je zameraný na detekciu technických ukazovateľov v časových r
 
 Projekt sa spúšťa cez hlavný súbor `app.py`
 
+### Spustenie skriptu na porovnanie geometrikého algoritmu a ML
+
+Skript sa spúšťa cez súbor `/scripts/metrics.py`
+
 ### Štruktúra projektu
 
 Projekt je rozdelený do viacero priečinkov, ktoré sú zodpovedné za konkrétne úlohy:
@@ -17,8 +21,17 @@ Projekt je rozdelený do viacero priečinkov, ktoré sú zodpovedné za konkrét
    1. *Trojuholníkový vzor*
    1. *Vlajkový vzor*
    1. *Vzor Elliottových vĺn*
+   1. *Trojuholníkový vzor pomocou ML*
    
     Aplíkacia zároveň funguje tak, že načítava všetky dostupné ukazovateľe v tomto priečinku, preto ak doplníme nový indikátor, ktorý je naimplementovaný správne, bude v aplikácii priamo dostupný.
+1. **Models** - obsahuje natrénované modely na detekciu vzorov.
+1. **Scripts** - obsahuje scripty na testovanie algoritmov na detekciu vzorov. Porovnanie detekcie trojuholníkového vzoru pomocou geometrického algoritmu a ML - dostaneme výsledky na základe rôznych metrík ako:
+   1. *Precision*
+   1. *Recall*
+   1. *F1 score*
+   1. *ROC krivka a AUC*
+
+    Pričom výsledky sa nám vypíšu v konzole a samotná krivka sa zobrazí v grafe.
 1. **Ostatné súbory** - tu patrí hlavný súbor na spúšťanie `app.py` a `README.md`
 
 ### Používateľská príručka
@@ -49,5 +62,19 @@ Projekt je rozdelený do viacero priečinkov, ktoré sú zodpovedné za konkrét
     <br/><br/>
     ![img_5.png](readme_images/img_5.png)
     <br/><br/>
+
+### Používateľská príručka pre skript metrics
+
+Fungovanie tohto skriptu je jednoduché a priblížime si ho vo viacerých krokorch:
+
+1. Ak v priečinku `/models` nemáme potrebný natrénovaný model, spustí sa tréning na 10000 vygenerovaných tréningových dátach,
+2. Násedne si vygenerujeme 100 testových dát.
+3. Tieto dáta cyklicky prejdeme a nad každým z nich spustíme detekciu pomocou geometrického algoritmua aj pomocou natrénovaného modelu.
+4. V prípade, že detekujeme vzor správne zvýši sa nám počet *True positives*
+5. V prípade, že sme vzor nedetkovali správne, naskytnú sa nám dve možnosti:
+    1. Detekovali sme vzor správne, pretože v dátach, ktoré nemali vzor obsahovať sa vzor naozaj našiel
+    2. Vzor sme nedetekovali a ide teda o chybu
+6. Na overenie toho, ktorý z dvoch scenárov sa nám vyskytol, sa nám data zobrazia v grafe a musíme manuálne označiť, či šlo o chybu alebo správnu detekciu.
+7. Po skončení cyklu sa nám vypočítajú všetky potrebné metriky a vypíšu sa do konzoly a taktiež sa nám zobrazia grafy zobrazujúce ROC krivku.
 
 

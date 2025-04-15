@@ -28,7 +28,17 @@ def detect_time_column(df):
 
 # Metóda na na nájdenie stĺpcov s hodnotami (musia obsahovať len číselné hodnoty)
 def get_numeric_columns(df, time_col):
-    numeric_columns = [col for col in df.columns if col != time_col and pd.to_numeric(df[col], errors='coerce').notna().all()]
+    for col in df.columns:
+        if col == time_col:
+            continue
+        try_convert = pd.to_numeric(df[col], errors='coerce')
+        if try_convert.notna().sum() == len(df[col]):
+            df[col] = try_convert
+
+    numeric_columns = [
+        col for col in df.columns
+        if col != time_col and pd.api.types.is_numeric_dtype(df[col])
+    ]
     return numeric_columns
 
 # Metóda na spracovanie dát

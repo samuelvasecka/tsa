@@ -63,7 +63,7 @@ def calculate_average_slope(values, times):
 # Metóda na výpočet trendovej čiary nad množinou bodov
 def get_trend_line(values, times, times_numeric):
     if len(values) < 2:
-        return values, times
+        return values, times, times_numeric
 
     a = np.vstack([times_numeric, np.ones(len(times_numeric))]).T
     m, b = np.linalg.lstsq(a, values, rcond=None)[0]

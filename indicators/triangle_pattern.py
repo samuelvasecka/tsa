@@ -43,12 +43,18 @@ def check_triangle_pattern(peaks, troughs, peak_times, trough_times):
 
 # Metóda na nájdenie trojuholníkového vzoru
 def find_triangle_pattern(price_segment, time_numeric_segment):
-    fib_numbers = fibonacci_sequence_up_to(int(len(price_segment) * 0.5))
+    fib_numbers = fibonacci_sequence_up_to(len(price_segment))
     while fib_numbers[-1] < 5:
         fib_numbers.pop()
 
+    fib_numbers.insert(0, len(price_segment))
+
+    window_size = 0
+
     # Cyklus pre nastavenie veľkosti okna pre hľadanie maxím a miním pomocou Fibonačiho postupnosti
     for order_value in reversed(fib_numbers):
+
+        window_size = order_value
 
         # Nájdené maximá a minimá
         peaks_idx = argrelextrema(price_segment, np.greater, order=order_value)[0]
@@ -72,9 +78,9 @@ def find_triangle_pattern(price_segment, time_numeric_segment):
                                                                                   norm_trough_numeric_times)
             if valid_peaks_idx and valid_troughs_idx:
                 return breakout, peaks_idx[valid_peaks_idx], troughs_idx[
-                    valid_troughs_idx], norm_peaks, norm_peak_numeric_times, norm_troughs, norm_trough_numeric_times
+                    valid_troughs_idx], norm_peaks, norm_peak_numeric_times, norm_troughs, norm_trough_numeric_times, order_value
 
-    return None, None, None, None, None, None, None
+    return None, None, None, None, None, None, None, window_size
 
 # Trieda pre technický indikátor Trojuholník
 class TrianglePattern(TechnicalIndicator):
@@ -94,14 +100,15 @@ class TrianglePattern(TechnicalIndicator):
         price_segment, time_numeric_segment, time_segment = get_segments(df, n, price_column, time_column)
 
         # Nájdeme trojuholníkový vzor
-        breakout, peaks_idx, troughs_idx, norm_peaks, norm_peak_numeric_times, norm_troughs, norm_trough_numeric_times = find_triangle_pattern(
+        breakout, peaks_idx, troughs_idx, norm_peaks, norm_peak_numeric_times, norm_troughs, norm_trough_numeric_times, founded_window = find_triangle_pattern(
             price_segment, time_numeric_segment)
 
         # Ak sme nenašli maximá a minimá, nenašli sme vzor
         if peaks_idx is None or troughs_idx is None:
             return {
                 "pattern": "Triangle",
-                "detected": False
+                "detected": False,
+                "window": founded_window,
             }
 
         peaks = price_segment[peaks_idx]
@@ -120,6 +127,7 @@ class TrianglePattern(TechnicalIndicator):
             "pattern": "Triangle",
             "detected": True,
             "breakout": breakout,
+            "window": founded_window,
             "peaks": {
                 "time_numeric": peak_numeric_times,
                 "time": peak_times,
